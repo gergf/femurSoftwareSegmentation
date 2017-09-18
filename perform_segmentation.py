@@ -5,6 +5,7 @@ import argparse
 import numpy as np 
 import nibabel as nib
 from scipy import ndimage
+from os.path import dirname
 from subprocess import call
 import matplotlib.pyplot as plt 
 
@@ -23,7 +24,6 @@ GRAPH_TENSORS = {
 }
 
 SAVE_PATH  = './net/convnet'
-AUX_PATH   = './aux.nii.gz'
 #############################################################
 
 """
@@ -47,6 +47,12 @@ def remove_minor_regions(labeled_img, biggest_reg_lab):
     return f(labeled_img)
 
 """
+    This does not work in Windows Systems. 
+"""
+def get_file_name(path):
+    return path.split('/')[-1]
+
+"""
     Saves the visualization as png in the specified fied path. 
 """
 def save_visualization(segmentation, original_image, path_to_output, alpha=0.5):
@@ -68,17 +74,17 @@ def save_visualization(segmentation, original_image, path_to_output, alpha=0.5):
 """
 def save_nifti_segmentation(segmentation, original_nifti_image, path_to_output):
     nifti_seg = nib.Nifti1Image(segmentation, original_nifti_image.affine, original_nifti_image.header)
-    nib.save(nifti_seg, path_to_output + '.nii.gz')
+    nib.save(nifti_seg, path_to_output)
 
 """
     Performs xRay femur image segmentation by using a pre-trained convolutional neural network. 
 """
-def femur_extraction(path_to_input, path_to_output):
+def femur_extraction(path_to_input, path_to_output, path_to_pp_sample, path_to_visualizations, verbose):
     # Preprocess data # 
-    call(['python3', './preprocess/prepare_sample.py', path_to_input, AUX_PATH])
+    call(['python3', './preprocess/prepare_sample.py', path_to_input, path_to_pp_sample])
 
     # Load preprocessed data  #
-    nifti_input_image = nib.load(AUX_PATH)
+    nifti_input_image = nib.load(path_to_pp_sample)
     model_input = nifti_input_image.get_data()
     model_input = np.reshape(model_input, (1, IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS)) # NHWC format 
 
@@ -103,11 +109,9 @@ def femur_extraction(path_to_input, path_to_output):
     segmentation = remove_minor_regions(labeled, biggest_reg_lab)
     
     # Save result #
-    save_visualization(segmentation, nifti_input_image.get_data(), path_to_output) 
+    if verbose:
+        save_visualization(segmentation, nifti_input_image.get_data(), path_to_visualizations) 
     save_nifti_segmentation(segmentation, nifti_input_image, path_to_output)
-
-    # Remove auxiliar files #
-    call(['rm', AUX_PATH])
 
 #############################################################
 
@@ -115,17 +119,24 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Performs xRay femur image segmentation by using a pre-trained convolutional neural network.' +
         'The model generates two files, one NifTi file, which is the segmentation of the sample; and a PNG file, which is a preview of the segmentation.')
     parser.add_argument('-i',   '--input' , help='Path to load the input sample (.nii.gz).', type=str, required=True)
-    parser.add_argument('-o',  '--output', help='Path to save the output sample. This path is used to save segmentation (.nii.gz) and' 
-                        + ' visualization (.png).', default='./output.nii.gz', type=str)
+    parser.add_argument('-o',  '--output', help='Path to save the output sample. Take note that this path must end with ".nii.gz"', default='./output.nii.gz', type=str)
+    parser.add_argument('-v', '--verbose', help='If True, the script generates a visualization of the results. (Default Fasle)', default=False, type=bool)
     args = parser.parse_args()
 
     path_to_input = args.input
     path_to_output = args.output
-
-    if path_to_input[-7:] != '.nii.gz':
+    
+    # Check paths # 
+    if len(path_to_input) < 7 or path_to_input[-7:] != '.nii.gz' :
         exit('The input file must be a NifTi image (.nii.gz)')
+    
+    if len(path_to_output) < 7 or path_to_output[-7:] != '.nii.gz':
+        exit('The output file must be a NifTi image (.nii.gz)')
 
-    if path_to_output[-1] == '/': 
-        path_to_output += 'results'
+    # Generate results paths # 
+    in_file_name = get_file_name(path_to_input)
+    dir_path_output = dirname(path_to_output) + '/'
+    path_to_visualizations = dir_path_output + 'visualizations'
+    path_to_pp_sample = dir_path_output + 'preprocess_' + in_file_name
 
-    femur_extraction(path_to_input, path_to_output)
+    femur_extraction(path_to_input, path_to_output, path_to_pp_sample, path_to_visualizations, args.verbose)
