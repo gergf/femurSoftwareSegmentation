@@ -38,7 +38,9 @@ At this point everything should be ready to work. Let's tun a test to be sure ev
 ```
 python3 perform_segmentation.py --input ./test/test_sample.nii.gz --output ./test/test_result
 ```
-This should create two new files inside the test folder. One should be test.nii.gz, which represents the segmentation of the sample saved in NifTi format; the other one should be test.png, which is a auto-generated visualization where you can check if the model's segmentation makes sense. 
+This should create two new files inside the test folder. One should be test.nii.gz, which represents the segmentation of the sample saved in NifTi format; the other one should be test.png, which is a auto-generated visualization where you can check if the model's segmentation makes sense. With the test sample, you should get the next visualization:
+
+![Example of visualization](https://user-images.githubusercontent.com/14791980/30539572-6826580c-9c73-11e7-9a12-13041117e1f3.png)
 
 ## Authors
 
