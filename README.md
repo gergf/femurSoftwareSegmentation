@@ -39,7 +39,7 @@ git clone https://www.github.com/gergf/femurSoftwareSegmentation
 
 At this point everything should be ready to work. Let's run a test to be sure everything is ok. Run the next line: 
 ```
-python3 perform_segmentation.py --input ./test/test_sample.nii.gz --output ./test/test_result -v True
+python3 perform_segmentation.py --input ./test/test_sample.nii.gz --output ./test/test_result.nii.gz -v True
 ```
 This should create three new files inside the test folder. One should be /test/test.nii.gz, which represents the segmentation of the sample saved in NifTi format; the second one should be the preprocessed sample, with name preprocess_test_sample.nii.gz, stored in ./test/. Because we setted the flag of verbose to True, we have another file, named ./test/visualizations.png, which is a auto-generated visualization where you can check if the model's segmentation makes sense. With the test sample, you should get the next visualization:
 
