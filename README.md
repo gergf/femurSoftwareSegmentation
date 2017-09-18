@@ -1,7 +1,10 @@
 # xRay-Femur Image Segmentation Software 
 
-Software aimed to perform segmentation of xRay femur images. It uses a Deep ConvNet as a predictor. 
-
+Software aimed to perform segmentation of xRay femur images. It uses a Deep ConvNet as a predictor.
+**Model assumptions**: 
+- The input image must be in NifTi format. 
+- The input image should be a x-Ray image (TAC images can fail). 
+- The femur's head must be looking to the left, and to be in the top part of the image. 
 
 ## Getting Started
 
