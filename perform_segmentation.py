@@ -3,6 +3,7 @@
 
 # Python dependencies 
 import os
+import sys
 import argparse
 import nibabel as nib
 from subprocess import call
@@ -12,6 +13,9 @@ import numpy as np
 import tensorflow as tf
 from scipy import ndimage
 import matplotlib.pyplot as plt 
+
+# Own libraries 
+import preprocess.prepare_sample as pp
 
 #############################################################
 IMG_HEIGHT = 256
@@ -78,9 +82,7 @@ def femur_extraction(path_to_input, path_to_output, path_to_pp_sample, path_to_v
     """
     # Preprocess data # 
     path_to_pp_script = os.path.join('.', 'preprocess', 'prepare_sample.py')
-    r_code = call(['python3', path_to_pp_script, path_to_input, path_to_pp_sample])
-    if r_code != 0: 
-        exit('Something went wrong in preprocess/prepare_sample.py')
+    pp.prepare_sample(path_to_input, path_to_pp_sample)
 
     # Load preprocessed data  #
     nifti_input_image = nib.load(path_to_pp_sample)
@@ -116,6 +118,11 @@ def femur_extraction(path_to_input, path_to_output, path_to_pp_sample, path_to_v
 #############################################################
 
 if __name__ == '__main__':
+    # Check python version
+    if sys.version_info <= (3, 0):
+        sys.stdout.write("Sorry, requires Python 3.x, not Python 2.x\n")
+        exit()
+
     parser = argparse.ArgumentParser(description='Performs xRay femur image segmentation by using a pre-trained convolutional neural network.' +
         'The model generates two files, one NifTi file, which is the segmentation of the sample; and a PNG file, which is a preview of the segmentation.')
     parser.add_argument('-i',   '--input' , help='Path to load the input sample (.nii.gz).', type=str, required=True)

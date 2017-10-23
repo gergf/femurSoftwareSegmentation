@@ -37,7 +37,11 @@ def _resize_sample(source_file_path, target_file_path, _new_dim = '256x256'):
     		The methods only works with two-dimensional images. 
     """
     from subprocess import call
-    call(["ResampleImage", '2', source_file_path, target_file_path, _new_dim, "1", "0"])
+    r_code = call(["ResampleImage", '2', source_file_path, target_file_path, _new_dim, "1", "0"])
+    
+    # Check if everything went ok
+    if r_code != 0: 
+        exit('Something went wrong with ResampleImage')
 
 def _robust_zscore(source_file_path, target_file_path):
     """
