@@ -80,8 +80,7 @@ def femur_extraction(path_to_input, path_to_output, path_to_pp_sample, path_to_v
     """
         Performs xRay femur image segmentation by using a pre-trained convolutional neural network. 
     """
-    # Preprocess data # 
-    path_to_pp_script = os.path.join('.', 'preprocess', 'prepare_sample.py')
+    # Preprocess data, it saves the preprocessed data in path_to_pp_sample
     pp.prepare_sample(path_to_input, path_to_pp_sample)
 
     # Load preprocessed data  #
@@ -119,7 +118,7 @@ def femur_extraction(path_to_input, path_to_output, path_to_pp_sample, path_to_v
 
 if __name__ == '__main__':
     # Check python version
-    if sys.version_info <= (3, 0):
+    if sys.version_info < (3, 0):
         sys.stdout.write("Sorry, requires Python 3.x, not Python 2.x\n")
         exit()
 
